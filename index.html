@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Hello I am Testing Page</h1>
+    <form action="/product" method="post">
+        <input type="text" name="name" id="name" placeholder="name">
+        <input type="number" name="price" id="price" placeholder="price">
+        <input type="number" name="quantity" id="quantity" placeholder="quantity">
+        <button type="submit">Add Product</button>
+    </form>
+    <h5 id="product"></h5>
+    <div id="product"></div>
+    <div id="upded"></div>
+    <script>
+        const relodbutton = () => {
+            fetch('http://localhost:4000/product')
+                .then(res => res.json())
+                .then(data => {
+                    const products = document.getElementById('product');
+                    products.innerHTML = ""
+                    data.forEach(pd => {
+                        const p = document.createElement('h3');
+                        p.innerHTML = `Name:${pd.name} ---  Price:${pd.price} --- Quantity:${pd.quantity} ---
+                        <button onclick="handelDelet(event , '${pd._id}')">Delet</button>
+                        <button onclick="handelUpded('${pd._id}')">Upded</button>
+                        `;
+                        products.appendChild(p);
+                    });
+                })
+        }
+        relodbutton();
+        const handelDelet = (event, id) => {
+            console.log()
+            fetch(`/product/${id}`, {
+                method: 'DELETE',
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data) {
+                        event.target.parentNode.style.display = 'none';
+                    }
+                })
+        }
+
+        const handelUpded = (id) => {
+            fetch(`/product/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    const update = document.getElementById('upded');
+                    update.innerHTML = `<input type="text" name="name" id="inp_name" value="${data.name}">
+                    <input type="number" name="price" id="inp_price" value="${data.price}">
+                    <input type="number" name="quantity" id="inp_quantity" value="${data.quantity}">
+                    <button onclick="handelUpdedating('${data._id}')">Upded</button>
+                    `;
+                })
+        }
+        const handelUpdedating = (id) => {
+            const name = document.getElementById('inp_name').value;
+            const price = document.getElementById('inp_price').value;
+            const quantity = document.getElementById('inp_quantity').value;
+            const product = { id, name, price, quantity };
+            fetch(`/product/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify(product),
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data) {
+                        relodbutton();
+                        document.getElementById('upded').innerHTML = ''
+                    }
+
+                });
+        }
+
+    </script>
+</body>
+
+</html>
